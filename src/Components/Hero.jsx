@@ -26,9 +26,10 @@ const Hero = () => {
   }, [])
 
   useGSAP(() => {
-    // GSAP to animation for the hero, set the opacity to 1 and delay for 1.5s
+    // GSAP to animation for the hero, set the opacity to 1 and delay for 2s
     gsap.to('#hero', { opacity: 1, delay: 2 })
 
+    // Animate in the button with the same parameters as above
     gsap.to('#cta', { opacity: 1, delay: 2, y: -50 })
   }, [])
 
