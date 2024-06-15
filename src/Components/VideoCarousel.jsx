@@ -119,8 +119,11 @@ const VideoCarousel = () => {
             
             // function to get progress of animation
             const animUpdate = () => {
-                anim.progress(videoRef.current[videoId].currentTime / highlightsSlides[videoId].videoDuration)
-            }
+                anim.progress(
+                  videoRef.current[videoId].currentTime /
+                    highlightsSlides[videoId].videoDuration
+                );
+              };
     
             if(isPlaying) {
                 gsap.ticker.add(animUpdate)
