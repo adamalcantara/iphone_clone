@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { highlightsSlides } from '../constants';
 import gsap from 'gsap';
 import { pauseImg, playImg, replayImg } from '../utils';
+import { useGSAP } from '@gsap/react';
 
 const VideoCarousel = () => {
     // Refs to keep track of what video is in focus
@@ -26,6 +27,23 @@ const VideoCarousel = () => {
     // destructure values
     const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
 
+    // Animations
+    useGSAP(() => {
+        gsap.to('#video', {
+            scrollTrigger: {
+                trigger: '#video',
+                toggleActions: 'restart none none none'
+            },
+            onComplete: () => {
+                setVideo((pre) => ({
+                    ...pre,
+                    startPlay: true,
+                    isPlaying: true,
+                }))
+            }
+        })
+    }, [isEnd,videoId]) //update whenever video changes
+
     // playing of the video itself
     useEffect(() => {
         if(loadedData.length > 3) {
@@ -38,6 +56,9 @@ const VideoCarousel = () => {
             }
         }
     }, [startPlay, videoId, isPlaying, loadedData])
+
+    // take previously loaded data
+    const handleLoadedMetaData = (i, e) => setLoadedData((pre) => [...pre, e])
 
     // useeffect to play videos
     useEffect(() => {
@@ -113,6 +134,8 @@ const VideoCarousel = () => {
                                         ...prevVideo, isPlaying: true
                                     }))
                                 }}
+                                // get triggered with the event once metadata of video is loaded
+                                onLoadedMetadata={(e) => handleLoadedMetaData(i, e)}
                             >
                                 <source src={list.video} type='video/mp4' />
                             </video>
