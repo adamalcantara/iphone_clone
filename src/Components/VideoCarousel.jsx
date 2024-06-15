@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react'
 import { useRef, useState } from 'react';
 import { highlightsSlides } from '../constants';
-import gsap from 'gsap';
 import { pauseImg, playImg, replayImg } from '../utils';
 import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from "gsap/all";
+gsap.registerPlugin(ScrollTrigger);
 
 const VideoCarousel = () => {
     // Refs to keep track of what video is in focus
@@ -13,7 +15,6 @@ const VideoCarousel = () => {
 
     // state for video
     const [video, setVideo] = useState({
-        // figure out which video is playing
         isEnd: false,
         startPlay: false,
         videoId: 0,
@@ -29,20 +30,30 @@ const VideoCarousel = () => {
 
     // Animations
     useGSAP(() => {
-        gsap.to('#video', {
-            scrollTrigger: {
-                trigger: '#video',
-                toggleActions: 'restart none none none'
-            },
-            onComplete: () => {
-                setVideo((pre) => ({
-                    ...pre,
-                    startPlay: true,
-                    isPlaying: true,
-                }))
-            }
-        })
-    }, [isEnd,videoId]) //update whenever video changes
+        gsap.to("#slider", {
+          transform: `translateX(${-100 * videoId}%)`,
+          duration: 2,
+          ease: "power2.inOut",
+        });
+    
+        gsap.to("#video", {
+          scrollTrigger: {
+            trigger: "#video",
+            toggleActions: "restart none none none",
+        },
+          
+          onComplete: () => {
+            setVideo((pre) => ({
+              ...pre,
+              startPlay: true,
+              isPlaying: true,
+            }));
+          },
+        });
+
+    }, [isEnd, videoId]); //update whenever video changes
+
+
 
     // playing of the video itself
     useEffect(() => {
@@ -55,14 +66,14 @@ const VideoCarousel = () => {
                 startPlay && videoRef.current[videoId].play();
             }
         }
-    }, [startPlay, videoId, isPlaying, loadedData])
+    }, [startPlay, videoId, isPlaying, loadedData]);
 
     // take previously loaded data
-    const handleLoadedMetaData = (i, e) => setLoadedData((pre) => [...pre, e])
+    const handleLoadedMetaData = (i, e) => setLoadedData((pre) => [...pre, e]);
 
     // useeffect to play videos
     useEffect(() => {
-        const currentProgress = 0;
+        let currentProgress = 0;
         // get span of video currently playing
         let span = videoSpanRef.current;
 
@@ -71,38 +82,81 @@ const VideoCarousel = () => {
             let anim = gsap.to(span[videoId], {
                 // When animation updates
                 onUpdate: () => {
-                    
+                    const progress = Math.ceil(anim.progress() * 100);
+
+                    // if the progress isn't equal to the current progress update it
+                    if(progress != currentProgress) {
+                        currentProgress = progress;
+
+                        gsap.to(videoDivRef.current[videoId], {
+                            width: window.innerWidth < 760 ? '10vw' : window.innerWidth < 1200 ? '10vw' : '4vw'
+                        })
+
+                        gsap.to(span[videoId], {
+                            width: `${currentProgress}%`,
+                            backgroundColor: 'white'
+                        })
+                    }
                 },
 
                 // When animation completes
                 onComplete: () => {
-
+                    if(isPlaying) {
+                        gsap.to(videoDivRef.current[videoId], {
+                            width: '12px'
+                        })
+                        gsap.to(span[videoId], {
+                            backgroundColor: '#afafaf'
+                        })
+                    }
                 }
             })
 
+            // if the video id is 0, restart the animation
+            if(videoId === 0) {
+                anim.restart();
+            }
+            
+            // function to get progress of animation
+            const animUpdate = () => {
+                anim.progress(videoRef.current[videoId].currentTime / highlightsSlides[videoId].videoDuration)
+            }
+    
+            if(isPlaying) {
+                gsap.ticker.add(animUpdate)
+            } else {
+                gsap.ticker.remove(animUpdate)
+            }
+        
         }
+        
     }, [videoId, startPlay]) //recall video when videoid changes or when startPlay variable changes
 
     const handleProcess = (type, i) => {
         switch (type) {
             case 'video-end':
                 // spread the previous video state, and set the end to true, then increment video ID
-                setVideo((pre) => ({...pre, isEnd: true, videoId: i + 1}))
+                setVideo((pre) => ({...pre, isEnd: true, videoId: i + 1}));
                 break;
 
             case 'video-last':
                 // spread the previous video, set isLastVideo to true
-                setVideo((pre) => ({...pre, isLastVideo: true }))
+                setVideo((pre) => ({...pre, isLastVideo: true }));
                 break;
                 
             case 'video-reset':
                 // spread previous video, set isLastVideo to false, set videoId to 0
-                setVideo((pre) => ({...pre, isLastVideo: false, videoId: 0 }))
+                setVideo((pre) => ({...pre, isLastVideo: false, videoId: 0 }));
+                break;
+
+            case 'pause':
+                // spread previous video, set isPlaying to opposite of previous isPlaying
+                setVideo((pre) => ({...pre, isPlaying: !pre.isPlaying }));
                 break;
 
             case 'play':
                 // spread previous video, set isPlaying to opposite of previous isPlaying
-                setVideo((pre) => ({...pre, isPlaying: !pre.isPlaying }))
+                setVideo((pre) => ({...pre, isPlaying: !pre.isPlaying }));
                 break;
         
             default:
@@ -122,16 +176,25 @@ const VideoCarousel = () => {
                         <div className='w-full h-full flex-center rounded-3xl overflow-hidden bg-black'>
                             {/* Get each video */}
                             <video
-                                id='video'
+                                id="video"
                                 playsInline={true}
-                                preload='auto'
+                                className={`${
+                                list.id === 2 && "translate-x-44"
+                                } pointer-events-none`}
+                                preload="auto"
                                 muted
                                 // Find the index in the array of videoRefs and set it to the current element
-                                ref={(el) => {videoRef.current[i] = el}}
+                                ref={(el) => (videoRef.current[i] = el)}
+                                // when will the video end?
+                                onEnded={() =>
+                                    i !== 3
+                                    ? handleProcess("video-end", i)
+                                    : handleProcess("video-last")
+                                }
                                 onPlay={() => {
-                                    setVideo((prevVideo) => ({
+                                    setVideo((pre) => ({
                                         // spread all information about the video, set isPlaying to true
-                                        ...prevVideo, isPlaying: true
+                                        ...pre, isPlaying: true
                                     }))
                                 }}
                                 // get triggered with the event once metadata of video is loaded
