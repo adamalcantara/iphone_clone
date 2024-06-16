@@ -6,7 +6,7 @@ When I first started developing websites, I was fascinated by the pages on Apple
 This project was built as an exercise to learn animations in React. Following a course on [YouTube](https://www.youtube.com/watch?v=kRQbRAJ4-Fs), I learned how to implement animations using GSAP, as well as 3D interactive modeling using Three.js. Tailwind CSS was used here for the animations
 
 ## Deployed Project
-[Click here to visit the deployed project]([https://www.youtube.com/watch?v=kRQbRAJ4-Fs](https://iphone-clone-4d9a5.web.app/))
+[Click here to visit the deployed project](https://iphone-clone-4d9a5.web.app/)
 
 ### Installation
 
