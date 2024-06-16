@@ -1,8 +1,23 @@
-# React + Vite
+# iPhone 15 Pro Website Clone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
+When I first started developing websites, I was fascinated by the pages on Apple's website and their interactivity. The smooth, scroll-based animations made me want to learn those skills.
 
-Currently, two official plugins are available:
+This project was built as an exercise to learn animations in React. Following a course on [YouTube](https://www.youtube.com/watch?v=kRQbRAJ4-Fs), I learned how to implement animations using GSAP, as well as 3D interactive modeling using Three.js. Tailwind CSS was used here for the animations
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Installation
+
+```
+npm i
+```
+
+# Contact
+If you have questions about anything relating to the code, please contact me: 
+
+GitHub: 
+
+adamalcantara 
+
+Email 
+
+alcantaradevelopment@gmail.com 
